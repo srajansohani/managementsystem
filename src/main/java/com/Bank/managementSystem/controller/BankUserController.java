@@ -2,6 +2,7 @@ package com.Bank.managementSystem.controller;
 import java.util.List;
 import java.util.Optional;
 
+import com.Bank.managementSystem.DTO.BalanceUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -55,7 +56,7 @@ public class BankUserController {
         }
     }
 
-    // Add a new user (input data)
+    //Add a new user (input data)
     @PostMapping("/")
     public ResponseEntity<BankUser> addUser(@RequestBody String name) {
         BankUser user = service.createUser(name);
@@ -64,7 +65,8 @@ public class BankUserController {
 
     // Update user balance (input data)
     @PutMapping("/{id}/balance")
-    public ResponseEntity<String> updateUserBalance(@PathVariable int id, @RequestBody int newBalance) {
+    public ResponseEntity<String> updateUserBalance(@PathVariable int id, @RequestBody BalanceUpdateRequest balanceUpdateRequest) {
+        int newBalance = balanceUpdateRequest.getNewBalance();
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
             BankUser existingUser = user.get();

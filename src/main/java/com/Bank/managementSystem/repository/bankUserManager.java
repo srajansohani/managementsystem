@@ -13,8 +13,6 @@ import jakarta.transaction.Transactional;
 @Repository
 @Transactional
 public class bankUserManager {
-    //connect to a database without the jdbc template
-
     @PersistenceContext
     EntityManager entityManager;
 

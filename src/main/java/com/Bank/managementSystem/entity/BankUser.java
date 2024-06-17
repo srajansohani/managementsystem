@@ -49,7 +49,8 @@ public class BankUser {
     }
 
     public void setUserBalance(int userBalance) {
-        this.userBalance = userBalance;
+        int newBalance = this.userBalance + userBalance;
+        this.userBalance = newBalance;
     }
 
     public List<Transactions> getTransactions() {
