@@ -3,6 +3,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,13 +53,13 @@ public class BankUserController {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }    
+    }
 
     // Add a new user (input data)
     @PostMapping("/")
-    public ResponseEntity<BankUser> addUser(@RequestBody BankUser user) {
-        service.saveUser(user);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<BankUser> addUser(@RequestBody String name) {
+        BankUser user = service.createUser(name);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     // Update user balance (input data)

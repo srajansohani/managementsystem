@@ -18,12 +18,12 @@ public class ManagementSystemApplication {
     public CommandLineRunner demo(BankingServices bankingServices) {
         return (args) -> {
             // Create some initial users
-            BankUser user1 = new BankUser();
+            BankUser user1 = new BankUser("Shivika");
             user1.setUserID(1);
 			
             user1.setUserBalance(1000);
 
-            BankUser user2 = new BankUser();
+            BankUser user2 = new BankUser("Sharma");
             user2.setUserID(2);
             user2.setUserBalance(500);
 

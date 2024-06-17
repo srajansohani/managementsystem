@@ -10,7 +10,7 @@ public class BankUser {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int userID; 
-
+    private String name;
     private String userAccount;
     private int userBalance;
 
@@ -18,15 +18,11 @@ public class BankUser {
     @CollectionTable(name = "transactions", joinColumns = @JoinColumn(name = "user_id"))
     private List<Transactions> transactions;
 
-    public BankUser(int userID){
-        this.userID = userID;
-        this.userAccount = "User#"+userID;
-        this.userBalance = 0;
-        transactions = new ArrayList<>();
-    }
+    public BankUser(){}
 
     //When we do not pass the user ID into the constructor argument it should refer to this one
-    public BankUser(){
+    public BankUser(String name){
+        this.name = name;
         this.userAccount = "User#"+userID;
         this.userBalance = 0;
         transactions = new ArrayList<Transactions>();

@@ -18,19 +18,25 @@ public class bankUserManager {
     @PersistenceContext
     EntityManager entityManager;
 
+    @Transactional
+    public BankUser create(String name) {
+        BankUser user = new BankUser(name);
+        entityManager.persist(user);
+        return user;
+    }
+
     public BankUser findById(int id){
         return entityManager.find(BankUser.class, id);
     }
 
-    public BankUser update(BankUser BankUser){
-        return entityManager.merge(BankUser);
-    }
+    public BankUser update(BankUser BankUser)  {return entityManager.merge(BankUser);}
 
     public void delete(int id){
         BankUser BankUser = findById(id);
         entityManager.remove(BankUser);
     }
 
+    //This is done using JPQL as the findall method is not available in JPA that is why we will use this
     public List<BankUser> findAll(){
        TypedQuery<BankUser> namedQuery = entityManager.createNamedQuery("find_all_BankUsers", BankUser.class);
        return namedQuery.getResultList();
