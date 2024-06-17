@@ -64,7 +64,10 @@ public class BankingServices{
         }
         if (removeBalance(b1, amount) && addBalance(toUser, amount)) {
             System.out.println("Successfully transferred " + amount + " from " + b1.getUserAccount() + " to " + toUser.getUserAccount());
+            repository.update(b1);
+            repository.update(toUser);
             return true;
+
         }
         return false;
     }

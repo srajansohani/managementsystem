@@ -78,6 +78,51 @@ public class BankUserController {
         }
     }
 
+    @PutMapping("/{id}/balance/add")
+    public ResponseEntity<BankUser> addBalance(@PathVariable int id, @RequestBody BalanceUpdateRequest balanceUpdateRequest) {
+        int balanceToAdd = balanceUpdateRequest.getNewBalance();
+        Optional<BankUser> user = service.getUserById(id);
+        if (user.isPresent()) {
+            BankUser userToUpdate = user.get();
+            boolean done = service.addBalance(userToUpdate, balanceToAdd);
+            if (done) {
+                return ResponseEntity.ok(user.get());
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{id}/balance/transfer")
+    public ResponseEntity<BankUser> transferBalance(@PathVariable int id, @RequestBody BalanceUpdateRequest balanceUpdateRequest){
+        int balanceToTransfer = balanceUpdateRequest.getNewBalance();
+        int userToTransfer = balanceUpdateRequest.getTransferId();
+        Optional<BankUser> user = service.getUserById(id);
+        Optional<BankUser> toTransfer = service.getUserById(userToTransfer);
+        if (user.isPresent()){
+            BankUser fromTransfer = user.get();
+            BankUser toAccountTransfer = toTransfer.get();
+            boolean done = service.transferBetweenTwoAccounts(fromTransfer,toAccountTransfer,balanceToTransfer);
+            if (done){
+                return ResponseEntity.ok(user.get());
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{id}/balance/remove")
+    public ResponseEntity<BankUser> removeBalance(@PathVariable int id, @RequestBody BalanceUpdateRequest balanceUpdateRequest){
+        int balanceToRemove = balanceUpdateRequest.getNewBalance();
+        Optional<BankUser> user = service.getUserById(id);
+        if (user.isPresent()){
+            BankUser userToUpdate = user.get();
+            boolean done = service.removeBalance(userToUpdate, balanceToRemove);
+            if (done){
+                return ResponseEntity.ok(user.get());
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     // Delete a user by ID (input data)
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUserById(@PathVariable int id) {
