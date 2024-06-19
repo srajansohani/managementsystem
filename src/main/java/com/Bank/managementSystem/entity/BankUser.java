@@ -9,75 +9,78 @@ import java.util.List;
 public class BankUser {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private int userID; 
+    private int userID;
     private String name;
-    private String userAccount;
-    private int userBalance;
 
-    @ElementCollection
-    @CollectionTable(name = "transactions", joinColumns = @JoinColumn(name = "user_id"))
-    private List<Transactions> transactions;
+//    @OneToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "account_id")
+//    private Account userAccount;
 
     public BankUser(){}
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id")  // this is the foreign key in the Account table
+    private List<Account> accounts = new ArrayList<>();
+
     //When we do not pass the user ID into the constructor argument it should refer to this one
-    public BankUser(String name){
+    public BankUser(String name, String accountType){
         this.name = name;
-        this.userAccount = "User#"+userID;
-        this.userBalance = 0;
-        transactions = new ArrayList<Transactions>();
+        Account account = new Account(accountType);
+        this.accounts.add(account);
     }
 
     public int getUserID() {
-        return userID;
+        return this.userID;
     }
-
     public void setUserID(int userID) {
         this.userID = userID;
     }
 
-    public String getUserAccount() {
-        return userAccount;
+    public List<Account> getUserAccounts() {
+        return accounts;
     }
 
-    public void setUserAccount(String userAccount) {
-        this.userAccount = userAccount;
+    public Account getAccount(Long accountId) {
+        for (Account account : accounts) {
+            if (account.getAccountId().equals(accountId)) {
+                return account;
+            }
+        }
+        return null;
     }
 
-    public int getUserBalance() {
-        return userBalance;
+    public Account setAccountBalance(Long accountId, int balanceToSet){
+        for (Account account: accounts){
+            if (account.getAccountId().equals(accountId)){
+                account.setAccountBalance(balanceToSet);
+            }
+        }
+        return null;
+    }
+    public String getAccountBalance(Long accountId) {
+        for (Account account : accounts) {
+            if (account.getAccountId().equals(accountId)) {
+                return account.getAccountBalance();
+            }
+        }
+        return null;
     }
 
-    public void setUserBalance(int userBalance) {
-        int newBalance = this.userBalance + userBalance;
-        this.userBalance = newBalance;
-    }
 
-    public List<Transactions> getTransactions() {
-        return transactions;
-    }
-
-    public void setTransactions(ArrayList<Transactions> transactions) {
-        this.transactions = transactions;
-    }
-
-    public boolean addTransaction(Transactions transaction){
-        boolean success = this.transactions.add(transaction);
-        return success;
+    public List<Transactions> getUserTransactions(Long accountId) {
+        for (Account account : accounts) {
+            if (account.getAccountId().equals(accountId)) {
+                return account.getTransactions();
+            }
+        }
+        return null; // Or throw an exception if account not found
     }
 
     public int get(){
         return this.userID;
     }
 
-    public int getBalance(){
-        int balance = this.userBalance;
-        return balance;
-    }
-
-    public String getAccount(int userID){
-        String account = userAccount;
-        System.out.println(account);
-        return account;
+    public List<Account> getAccounts(int userID){
+        return accounts;
     }
 }

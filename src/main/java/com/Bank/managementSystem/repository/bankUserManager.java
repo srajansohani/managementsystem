@@ -1,6 +1,5 @@
 package com.Bank.managementSystem.repository;
 import java.util.List;
-
 import org.springframework.stereotype.Repository;
 
 import com.Bank.managementSystem.entity.BankUser;
@@ -17,8 +16,8 @@ public class bankUserManager {
     EntityManager entityManager;
 
     @Transactional
-    public BankUser create(String name) {
-        BankUser user = new BankUser(name);
+    public BankUser create(String name, String accountType) {
+        BankUser user = new BankUser(name,accountType);
         entityManager.persist(user);
         return user;
     }

@@ -1,21 +1,16 @@
 package com.Bank.managementSystem.controller;
+
 import java.util.List;
 import java.util.Optional;
+
 import com.Bank.managementSystem.DTO.BalanceUpdateRequest;
+import com.Bank.managementSystem.entity.BankUser;
+import com.Bank.managementSystem.service.BankingServices;
+import com.Bank.managementSystem.DTO.CreateUserRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.Bank.managementSystem.entity.BankUser;
-import com.Bank.managementSystem.service.BankingServices;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -34,55 +29,69 @@ public class BankUserController {
         }
     }
 
-    @GetMapping("/{id}/balance")
-    public ResponseEntity<Integer> getUserBalance(@PathVariable int id) {
+    @GetMapping("/{id}/accounts/{accountId}/balance")
+    public ResponseEntity<String> getUserBalance(@PathVariable int id, @PathVariable Long accountId) {
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
-            return ResponseEntity.ok(user.get().getUserBalance());
-        } else {
-            return ResponseEntity.notFound().build();
+            String balance = user.get().getAccountBalance(accountId);
+            if (balance != null) {
+                return ResponseEntity.ok(balance);
+            }
         }
+        return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/{id}/transactions")
-    public ResponseEntity<List<String>> getTransactionHistory(@PathVariable int id) {
+    @GetMapping("/{id}/accounts/{accountId}/transactions")
+    public ResponseEntity<List<String>> getTransactionHistory(@PathVariable int id, @PathVariable Long accountId) {
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
-            return ResponseEntity.ok(service.getTransactionHistory(user.get()));
-        } else {
-            return ResponseEntity.notFound().build();
+            List<String> transactions = service.getTransactionHistory(user.get(), accountId);
+            if (transactions != null) {
+                return ResponseEntity.ok(transactions);
+            }
         }
+        return ResponseEntity.notFound().build();
     }
 
-    //Add a new user (input data)
     @PostMapping("/")
-    public ResponseEntity<BankUser> addUser(@RequestBody String name) {
-        BankUser user = service.createUser(name);
+    public ResponseEntity<BankUser> addUser(CreateUserRequest createUserRequest) {
+        String name = createUserRequest.getName();
+        String accountType = createUserRequest.getAccountType();
+        BankUser user = service.createUser(name, accountType);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
-    // Update user balance (input data)
-    @PutMapping("/{id}/balance")
-    public ResponseEntity<String> updateUserBalance(@PathVariable int id, @RequestBody BalanceUpdateRequest balanceUpdateRequest) {
-        int newBalance = balanceUpdateRequest.getNewBalance();
+    @PutMapping("/{id}/accounts/{accountId}/balance")
+    public ResponseEntity<String> updateUserBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody BalanceUpdateRequest balanceUpdateRequest) {
+        String newBalance = String.valueOf(balanceUpdateRequest.getNewBalance());
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
-            BankUser existingUser = user.get();
-            existingUser.setUserBalance(newBalance);
-            service.saveUser(existingUser);
+            service.addBalance(user.get(), Integer.parseInt(newBalance),accountId);
             return ResponseEntity.ok("User balance updated successfully.");
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @PutMapping("/{id}/balance/add")
-    public ResponseEntity<BankUser> addBalance(@PathVariable int id, @RequestBody BalanceUpdateRequest balanceUpdateRequest) {
+    @PutMapping("/{id}/accounts/{accountId}/balance/add")
+    public ResponseEntity<BankUser> addBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody BalanceUpdateRequest balanceUpdateRequest) {
         int balanceToAdd = balanceUpdateRequest.getNewBalance();
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
-            BankUser userToUpdate = user.get();
-            boolean done = service.addBalance(userToUpdate, balanceToAdd);
+            boolean done = service.addBalance(user.get(), balanceToAdd, accountId);
+            if (done) {
+                return ResponseEntity.ok(user.get());
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{id}/accounts/{accountId}/balance/remove")
+    public ResponseEntity<BankUser> removeBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody BalanceUpdateRequest balanceUpdateRequest) {
+        int balanceToRemove = balanceUpdateRequest.getNewBalance();
+        Optional<BankUser> user = service.getUserById(id);
+        if (user.isPresent()) {
+            boolean done = service.removeBalance(user.get(), balanceToRemove, accountId);
             if (done) {
                 return ResponseEntity.ok(user.get());
             }
@@ -91,37 +100,23 @@ public class BankUserController {
     }
 
     @PutMapping("/{id}/balance/transfer")
-    public ResponseEntity<BankUser> transferBalance(@PathVariable int id, @RequestBody BalanceUpdateRequest balanceUpdateRequest){
+    public ResponseEntity<String> transferBalance(@PathVariable int id, @RequestBody BalanceUpdateRequest balanceUpdateRequest){
         int balanceToTransfer = balanceUpdateRequest.getNewBalance();
         int userToTransfer = balanceUpdateRequest.getTransferId();
-        Optional<BankUser> user = service.getUserById(id);
-        Optional<BankUser> toTransfer = service.getUserById(userToTransfer);
-        if (user.isPresent()){
-            BankUser fromTransfer = user.get();
-            BankUser toAccountTransfer = toTransfer.get();
-            boolean done = service.transferBetweenTwoAccounts(fromTransfer,toAccountTransfer,balanceToTransfer);
-            if (done){
-                return ResponseEntity.ok(user.get());
+        Long fromAccountId = balanceUpdateRequest.getAccountIdFrom();
+        Long toAccountId = balanceUpdateRequest.getAccountIdTo();
+
+        Optional<BankUser> fromUser = service.getUserById(id);
+        Optional<BankUser> toUser = service.getUserById(userToTransfer);
+        if (fromUser.isPresent() && toUser.isPresent()) {
+            boolean done = service.transferBetweenTwoAccounts(fromUser.get(), toUser.get(),fromAccountId, toAccountId, balanceToTransfer);
+            if (done) {
+                return ResponseEntity.ok("Transfer completed successfully.");
             }
         }
         return ResponseEntity.notFound().build();
     }
 
-    @PutMapping("/{id}/balance/remove")
-    public ResponseEntity<BankUser> removeBalance(@PathVariable int id, @RequestBody BalanceUpdateRequest balanceUpdateRequest){
-        int balanceToRemove = balanceUpdateRequest.getNewBalance();
-        Optional<BankUser> user = service.getUserById(id);
-        if (user.isPresent()){
-            BankUser userToUpdate = user.get();
-            boolean done = service.removeBalance(userToUpdate, balanceToRemove);
-            if (done){
-                return ResponseEntity.ok(user.get());
-            }
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    // Delete a user by ID (input data)
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUserById(@PathVariable int id) {
         Optional<BankUser> user = service.getUserById(id);
