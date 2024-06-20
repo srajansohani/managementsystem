@@ -1,9 +1,10 @@
 package com.Bank.managementSystem.controller;
-
+import com.Bank.managementSystem.Response.*;
 import java.util.List;
 import java.util.Optional;
 
 import com.Bank.managementSystem.DTO.BalanceUpdateRequest;
+import com.Bank.managementSystem.entity.Address;
 import com.Bank.managementSystem.entity.BankUser;
 import com.Bank.managementSystem.service.BankingServices;
 import com.Bank.managementSystem.DTO.*;
@@ -30,12 +31,13 @@ public class BankUserController {
     }
 
     @GetMapping("/{id}/accounts/{accountId}/balance")
-    public ResponseEntity<String> getUserBalance(@PathVariable int id, @PathVariable Long accountId) {
+    public ResponseEntity<GetBalanceResponse> getUserBalance(@PathVariable int id, @PathVariable Long accountId) {
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
             String balance = user.get().getAccountBalance(accountId);
             if (balance != null) {
-                return ResponseEntity.ok(balance);
+                GetBalanceResponse getBalanceResponse = new GetBalanceResponse("User balance : " + balance, user.get());
+                return ResponseEntity.ok(getBalanceResponse);
             }
         }
         return ResponseEntity.notFound().build();
@@ -59,6 +61,42 @@ public class BankUserController {
         String accountType = createUserRequest.getAccountType();
         BankUser user = service.createUser(name, accountType);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    }
+
+    @PostMapping("/{userId}/accounts/{accountId}/updateAddress")
+    public ResponseEntity<BankUser> updateAddress(@PathVariable int id, @PathVariable Long accountId, @RequestBody UpdateAddress updateAddress){
+        Address address = updateAddress.getAddress();
+        Optional<BankUser> user = service.getUserById(id);
+        if (user.isPresent()) {
+             user.get().setAddress(address);
+             service.saveUser(user.get());
+             return ResponseEntity.ok(user.get());
+        }
+        return null;
+    }
+
+    @PostMapping("/{userId}/accounts/{accountId}/updatePhone")
+    public ResponseEntity<BankUser> updatePhone(@PathVariable int id, @PathVariable Long accountId, @RequestBody UpdatePhone updatePhone){
+        Long phone = updatePhone.getPhone();
+        Optional<BankUser> user = service.getUserById(id);
+        if (user.isPresent()) {
+            user.get().setMobileNumber(phone);
+            service.saveUser(user.get());
+            return ResponseEntity.ok(user.get());
+        }
+        return null;
+    }
+
+    @PostMapping("/{userId}/accounts/{accountId}/updateEmail")
+    public ResponseEntity<BankUser> updateEmail(@PathVariable int id, @PathVariable Long accountId, @RequestBody UpdateEmail updateEmail){
+        String email = updateEmail.getEmail();
+        Optional<BankUser> user = service.getUserById(id);
+        if (user.isPresent()) {
+            user.get().setEmail(email);
+            service.saveUser(user.get());
+            return ResponseEntity.ok(user.get());
+        }
+        return null;
     }
 
     @PutMapping("/{id}/accounts/{accountId}/balance")
@@ -87,20 +125,21 @@ public class BankUserController {
     }
 
     @PutMapping("/{id}/accounts/{accountId}/balance/remove")
-    public ResponseEntity<BankUser> removeBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody RemoveBalance removeBalance) {
+    public ResponseEntity<RemoveResponse> removeBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody RemoveBalance removeBalance) {
         int balanceToRemove = removeBalance.getBalanceToRemove();
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
             boolean done = service.removeBalance(user.get(), balanceToRemove, accountId);
             if (done) {
-                return ResponseEntity.ok(user.get());
+                RemoveResponse removeResponse = new RemoveResponse("Balance Removed Successfully", user.get());
+                return ResponseEntity.ok(removeResponse);
             }
         }
         return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}/balance/transfer")
-    public ResponseEntity<String> transferBalance(@PathVariable int id, @RequestBody TransferRequest transferRequest){
+    public ResponseEntity<TransferResponse> transferBalance(@PathVariable int id, @RequestBody TransferRequest transferRequest){
         int balanceToTransfer = transferRequest.getBalanceToTransfer();
         int userToTransfer = transferRequest.getUserIdTO();
         Long fromAccountId = transferRequest.getAccountIdFrom();
@@ -111,7 +150,8 @@ public class BankUserController {
         if (fromUser.isPresent() && toUser.isPresent()) {
             boolean done = service.transferBetweenTwoAccounts(fromUser.get(), toUser.get(),fromAccountId, toAccountId, balanceToTransfer);
             if (done) {
-                return ResponseEntity.ok("Transfer completed successfully.");
+                TransferResponse response = new TransferResponse("Transfer completed successfully.", fromUser.get());
+                return ResponseEntity.ok(response);
             }
         }
         return ResponseEntity.notFound().build();

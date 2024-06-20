@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.Bank.managementSystem.entity.Address;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,7 +69,6 @@ public class BankingServices{
             repository.update(b1);
             repository.update(toUser);
             return true;
-
         }
         return false;
     }
@@ -86,13 +86,11 @@ public class BankingServices{
     public void saveUser(BankUser user) {repository.update(user);
     }
 
-    public BankUser createUser(String name, String accountType) {return repository.create(name,accountType);}
+    public BankUser createUser(String name, String accountType) {
+        return repository.create(name,accountType);
+    }
 
     public void deleteUser(int id){
         repository.delete(id);
-    }
-
-    public void updateUser(BankUser user, Long accountId){
-        repository.update(user);
     }
 }
