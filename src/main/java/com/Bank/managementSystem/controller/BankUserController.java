@@ -6,7 +6,7 @@ import java.util.Optional;
 import com.Bank.managementSystem.DTO.BalanceUpdateRequest;
 import com.Bank.managementSystem.entity.BankUser;
 import com.Bank.managementSystem.service.BankingServices;
-import com.Bank.managementSystem.DTO.CreateUserRequest;
+import com.Bank.managementSystem.DTO.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,8 +74,8 @@ public class BankUserController {
     }
 
     @PutMapping("/{id}/accounts/{accountId}/balance/add")
-    public ResponseEntity<BankUser> addBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody BalanceUpdateRequest balanceUpdateRequest) {
-        int balanceToAdd = balanceUpdateRequest.getNewBalance();
+    public ResponseEntity<BankUser> addBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody AddBalance addBalance) {
+        int balanceToAdd = addBalance.getBalanceToAdd();
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
             boolean done = service.addBalance(user.get(), balanceToAdd, accountId);
@@ -87,8 +87,8 @@ public class BankUserController {
     }
 
     @PutMapping("/{id}/accounts/{accountId}/balance/remove")
-    public ResponseEntity<BankUser> removeBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody BalanceUpdateRequest balanceUpdateRequest) {
-        int balanceToRemove = balanceUpdateRequest.getNewBalance();
+    public ResponseEntity<BankUser> removeBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody RemoveBalance removeBalance) {
+        int balanceToRemove = removeBalance.getBalanceToRemove();
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
             boolean done = service.removeBalance(user.get(), balanceToRemove, accountId);
@@ -100,11 +100,11 @@ public class BankUserController {
     }
 
     @PutMapping("/{id}/balance/transfer")
-    public ResponseEntity<String> transferBalance(@PathVariable int id, @RequestBody BalanceUpdateRequest balanceUpdateRequest){
-        int balanceToTransfer = balanceUpdateRequest.getNewBalance();
-        int userToTransfer = balanceUpdateRequest.getTransferId();
-        Long fromAccountId = balanceUpdateRequest.getAccountIdFrom();
-        Long toAccountId = balanceUpdateRequest.getAccountIdTo();
+    public ResponseEntity<String> transferBalance(@PathVariable int id, @RequestBody TransferRequest transferRequest){
+        int balanceToTransfer = transferRequest.getBalanceToTransfer();
+        int userToTransfer = transferRequest.getUserIdTO();
+        Long fromAccountId = transferRequest.getAccountIdFrom();
+        Long toAccountId = transferRequest.getAccountIdTo();
 
         Optional<BankUser> fromUser = service.getUserById(id);
         Optional<BankUser> toUser = service.getUserById(userToTransfer);
