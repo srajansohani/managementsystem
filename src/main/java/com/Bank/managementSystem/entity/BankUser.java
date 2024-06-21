@@ -79,6 +79,11 @@ public class BankUser {
         this.accounts.add(account);
     }
 
+    public void addAccount(String accountType){
+        Account account = new Account(accountType);
+        this.accounts.add(account);
+    }
+
     public int getUserID() {
         return this.userID;
     }

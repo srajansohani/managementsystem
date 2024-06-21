@@ -57,10 +57,21 @@ public class BankUserController {
 
     @PostMapping("/")
     public ResponseEntity<BankUser> addUser(CreateUserRequest createUserRequest) {
-        String name = createUserRequest.getName();
-        String accountType = createUserRequest.getAccountType();
-        BankUser user = service.createUser(name, accountType);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        boolean existingUser = createUserRequest.isExistingUser();
+        if (!existingUser){
+            String name = createUserRequest.getName();
+            String accountType = createUserRequest.getAccountType();
+            BankUser user = service.createUser(name, accountType);
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        }
+        else {
+            String accountType = createUserRequest.getAccountType();
+            int userId = createUserRequest.getExistingUserId();
+            Optional<BankUser> user = service.getUserById(userId);
+            user.get().addAccount(accountType);
+            service.saveUser(user.get());
+            return  ResponseEntity.ok(user.get());
+        }
     }
 
     @PostMapping("/{userId}/accounts/{accountId}/updateAddress")
@@ -76,7 +87,7 @@ public class BankUserController {
     }
 
     @PostMapping("/{userId}/accounts/{accountId}/updatePhone")
-    public ResponseEntity<BankUser> updatePhone(@PathVariable int id, @PathVariable Long accountId, @RequestBody UpdatePhone updatePhone){
+    public ResponseEntity<BankUser> updatePhone(@PathVariable int id, @PathVariable Long accountId, @org.jetbrains.annotations.NotNull @RequestBody UpdatePhone updatePhone){
         Long phone = updatePhone.getPhone();
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
