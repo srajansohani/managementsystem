@@ -1,9 +1,7 @@
 package com.Bank.managementSystem.repository;
 import java.util.List;
 import org.springframework.stereotype.Repository;
-
 import com.Bank.managementSystem.entity.BankUser;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -35,7 +33,7 @@ public class bankUserManager {
 
     //This is done using JPQL as the findall method is not available in JPA that is why we will use this
     public List<BankUser> findAll(){
-       TypedQuery<BankUser> namedQuery = entityManager.createNamedQuery("find_all_BankUsers", BankUser.class);
+       TypedQuery<BankUser> namedQuery = entityManager.createNamedQuery("BankUser.findAll", BankUser.class);
        return namedQuery.getResultList();
     }
 }

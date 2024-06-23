@@ -1,4 +1,6 @@
 package com.Bank.managementSystem.service;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -93,5 +95,9 @@ public class BankingServices{
 
     public void deleteUser(int id){
         repository.delete(id);
+    }
+
+    public List<BankUser> getAll(){
+        return repository.findAll();
     }
 }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@NamedQuery(name = "BankUser.findAll", query = "SELECT u FROM BankUser u")
 public class BankUser {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
