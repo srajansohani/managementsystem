@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 public class BankUserController {
 
     @Autowired
@@ -299,6 +299,3 @@ public class BankUserController {
         LOGGER.log(Level.SEVERE, message);
     }
 }
-
-
-
