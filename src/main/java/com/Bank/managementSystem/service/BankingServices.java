@@ -85,8 +85,9 @@ public class BankingServices{
         return Optional.ofNullable(repository.findById(id));
     }
 
-    public void saveUser(BankUser user) {
+    public BankUser saveUser(BankUser user) {
         repository.update(user);
+        return user;
     }
 
     public BankUser createUser(String name, String accountType) {

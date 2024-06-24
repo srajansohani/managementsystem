@@ -8,6 +8,7 @@ import com.Bank.managementSystem.service.BankingServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
@@ -25,14 +26,16 @@ public class BankUserController {
 
     private static final Logger LOGGER = Logger.getLogger(BankUserController.class.getName());
 
-    @GetMapping("/")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/")
     public ResponseEntity<List<BankUser>> getUsers() {
         List<BankUser> all = service.getAll();
         LOGGER.log(Level.INFO, "Fetched all users successfully.");
         return ResponseEntity.ok(all);
     }
 
-    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/{id}")
     public ResponseEntity<?> getUserById(@PathVariable int id) {
         Optional<BankUser> user = service.getUserById(id);
         return user.map(u -> {
@@ -45,7 +48,8 @@ public class BankUserController {
         });
     }
 
-    @GetMapping("/{id}/accounts/{accountId}/balance")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/{id}/accounts/{accountId}/balance")
     public ResponseEntity<GetBalanceResponse> getUserBalance(@PathVariable int id, @PathVariable Long accountId) {
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
@@ -64,7 +68,8 @@ public class BankUserController {
         }
     }
 
-    @GetMapping("/{id}/accounts/{accountId}/transactions")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @GetMapping("/user/{id}/accounts/{accountId}/transactions")
     public ResponseEntity<List<String>> getTransactionHistory(@PathVariable int id, @PathVariable Long accountId) {
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
@@ -82,7 +87,8 @@ public class BankUserController {
         }
     }
 
-    @PostMapping("/")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PostMapping("/admin/")
     public ResponseEntity<?> addUser(@RequestBody CreateUserRequest createUserRequest) {
         boolean existingUser = createUserRequest.isExistingUser();
 
@@ -142,7 +148,8 @@ public class BankUserController {
         }
     }
 
-    @PostMapping("/{userId}/accounts/{accountId}/updateAddress")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PostMapping("/user/{userId}/accounts/{accountId}/updateAddress")
     public ResponseEntity<ApiResponse<BankUser>> updateAddress(@PathVariable int userId, @PathVariable Long accountId, @RequestBody UpdateAddress updateAddress) {
         Address address = updateAddress.getAddress();
         System.out.println(address);
@@ -159,7 +166,8 @@ public class BankUserController {
         }
     }
 
-    @PostMapping("/{userId}/accounts/{accountId}/updatePhone")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PostMapping("/user/{userId}/accounts/{accountId}/updatePhone")
     public ResponseEntity<ApiResponse<BankUser>> updatePhone(@PathVariable int userId, @PathVariable Long accountId, @RequestBody UpdatePhone updatePhone) {
         Long phone = updatePhone.getPhone();
         Optional<BankUser> user = service.getUserById(userId);
@@ -175,7 +183,8 @@ public class BankUserController {
         }
     }
 
-    @PostMapping("/{userId}/accounts/{accountId}/updateEmail")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PostMapping("/user/{userId}/accounts/{accountId}/updateEmail")
     public ResponseEntity<ApiResponse<BankUser>> updateEmail(@PathVariable int userId, @PathVariable Long accountId, @RequestBody UpdateEmail updateEmail) {
         String email = updateEmail.getEmail();
         Optional<BankUser> user = service.getUserById(userId);
@@ -191,7 +200,8 @@ public class BankUserController {
         }
     }
 
-    @PutMapping("/{id}/accounts/{accountId}/balance")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/admin/{id}/accounts/{accountId}/balance")
     public ResponseEntity<ApiResponse<BankUser>> updateUserBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody BalanceUpdateRequest balanceUpdateRequest) {
         String newBalance = String.valueOf(balanceUpdateRequest.getNewBalance());
         Optional<BankUser> user = service.getUserById(id);
@@ -206,7 +216,8 @@ public class BankUserController {
         }
     }
 
-    @PutMapping("/{id}/accounts/{accountId}/balance/add")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PutMapping("/user/{id}/accounts/{accountId}/balance/add")
     public ResponseEntity<ApiResponse<BankUser>> addBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody AddBalance addBalance) {
         int balanceToAdd = addBalance.getBalanceToAdd();
         Optional<BankUser> user = service.getUserById(id);
@@ -226,7 +237,8 @@ public class BankUserController {
         }
     }
 
-    @PutMapping("/{id}/accounts/{accountId}/balance/remove")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/user/{id}/accounts/{accountId}/balance/remove")
     public ResponseEntity<RemoveResponse> removeBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody RemoveBalance removeBalance) {
         int balanceToRemove = removeBalance.getBalanceToRemove();
         Optional<BankUser> user = service.getUserById(id);
@@ -246,7 +258,8 @@ public class BankUserController {
         }
     }
 
-    @PutMapping("/{id}/balance/transfer")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PutMapping("/user/{id}/balance/transfer")
     public ResponseEntity<TransferResponse> transferBalance(@PathVariable int id, @RequestBody TransferRequest transferRequest) {
         int balanceToTransfer = transferRequest.getBalanceToTransfer();
         int userToTransfer = transferRequest.getUserIdTO();
@@ -271,7 +284,8 @@ public class BankUserController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/admin/{id}")
     public ResponseEntity<String> deleteUserById(@PathVariable int id) {
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
