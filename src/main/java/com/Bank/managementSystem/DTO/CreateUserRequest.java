@@ -3,6 +3,25 @@ package com.Bank.managementSystem.DTO;
 public class CreateUserRequest {
         private String name;
         private String accountType;
+        private long phone;
+
+    public long getPhone() {
+        return phone;
+    }
+
+    public void setPhone(long phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    private String email;
         private boolean existingUser;
         private int existingUserId;
 

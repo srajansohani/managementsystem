@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 @Embeddable
 public class Address {
     private String line1;
+    private String line2;
+    private Long zip;
 
     public String getLine1() {
         return line1;
@@ -31,6 +33,5 @@ public class Address {
         this.zip = zip;
     }
 
-    private String line2;
-    private Long zip;
+
 }
