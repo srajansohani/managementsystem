@@ -183,7 +183,7 @@ public class BankUserController {
             user.get().setEmail(email);
             service.saveUser(user.get());
             LOGGER.log(Level.INFO, "Updated email for user ID " + userId + " and account ID " + accountId + " successfully.");
-            ApiResponse<BankUser> apiResponse = new ApiResponse<>("Updated email for user ID " + userId + " and account ID " + accountId + " successfully.",user.get());
+            ApiResponse<BankUser> apiResponse = new ApiResponse<>("Updated email for user ID " + userId + " and account ID " + accountId + " successfully with email : " + email,user.get());
             return ResponseEntity.ok(apiResponse);
         } else {
             logNotFound("User with ID " + userId + " not found.");
