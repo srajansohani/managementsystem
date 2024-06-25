@@ -1,10 +1,12 @@
 package com.Bank.managementSystem.service;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.Bank.managementSystem.DTO.TransferArgument;
 import com.Bank.managementSystem.entity.Address;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,15 +21,25 @@ public class BankingServices{
     @Autowired
     private bankUserManager repository;
 
-    public boolean addBalance(BankUser b1, int balanceToAdd, Long accountId) {
+    public boolean addBalance(BankUser b1, int balanceToAdd, Long accountId, TransferArgument transferArgument) {
         if (balanceToAdd <= 0) {
             System.out.println("Failed to add balance. The amount to add must be positive.");
             return false;
         }
         int prevBalance = Integer.parseInt(b1.getAccountBalance(accountId));
         int newBalance = prevBalance + balanceToAdd;
+        long accountIdFrom = 0;
+        if (!transferArgument.isSelf()){
+            accountIdFrom = transferArgument.getAccountId();
+        }
         b1.setAccountBalance(accountId,balanceToAdd);
-        boolean transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transactions("Credit", balanceToAdd));
+        boolean transactionSuccessful;
+        if (transferArgument.isSelf()){
+            transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transactions("Credit - ", balanceToAdd, LocalDateTime.now()));
+        }
+        else {
+             transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transactions("Credit - ", balanceToAdd, LocalDateTime.now(),accountIdFrom));
+        }
         if (transactionSuccessful) {
             System.out.println("Successfully added balance to the account.");
             System.out.println(String.format("New Balance : %d", newBalance));
@@ -40,7 +52,7 @@ public class BankingServices{
         }
     }
 
-    public boolean removeBalance(BankUser b1, int balanceToRemove, Long accountId) {
+    public boolean removeBalance(BankUser b1, int balanceToRemove, Long accountId, TransferArgument transferArgument) {
         boolean done = false;
         if (balanceToRemove > Integer.parseInt(b1.getAccountBalance(accountId))) {
             System.err.println("Insufficient Funds");
@@ -53,7 +65,18 @@ public class BankingServices{
             done = true;
         }
         if (done) {
-            b1.getAccount(accountId).addTransaction(new Transactions("Debit", balanceToRemove));
+            long accountIdTo = 0;
+            if (!transferArgument.isSelf()){
+                accountIdTo = transferArgument.getAccountId();
+            }
+            boolean transactionSuccessful;
+            if (transferArgument.isSelf()){
+                transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transactions("Debit - ", balanceToRemove, LocalDateTime.now()));
+            }
+            else {
+                transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transactions("Debit - ", balanceToRemove, LocalDateTime.now(),accountIdTo));
+            }
+//            b1.getAccount(accountId).addTransaction(new Transactions("Debit - ", balanceToRemove,LocalDateTime.now()));
             repository.update(b1); // Save the updated user to the repository
             System.out.println("Successfully removed balance from the account.");
             System.out.println(String.format("New Balance : %d", Integer.parseInt(b1.getAccountBalance(accountId))));
@@ -66,7 +89,9 @@ public class BankingServices{
             System.err.println("Unsuccessful Transaction: User balance low.");
             return false;
         }
-        if (removeBalance(b1, amount, accountIdfrom) && addBalance(toUser, amount, accountIdTo)) {
+        TransferArgument transferDebit = new TransferArgument(false,accountIdTo);
+        TransferArgument transferCredit = new TransferArgument(false,accountIdfrom);
+        if (removeBalance(b1, amount, accountIdfrom , transferDebit) && addBalance(toUser, amount, accountIdTo , transferCredit)) {
             System.out.println("Successfully transferred " + amount + " from " + b1.getAccount(accountIdfrom) + " to " + toUser.getAccount(accountIdTo));
             repository.update(b1);
             repository.update(toUser);

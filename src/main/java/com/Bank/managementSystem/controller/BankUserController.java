@@ -40,7 +40,7 @@ public class BankUserController {
         Optional<BankUser> user = service.getUserById(id);
         return user.map(u -> {
             LOGGER.log(Level.INFO, "Fetched user with ID " + id + " successfully.");
-            ApiResponse apiResponse = new ApiResponse<>("Fetched user with ID " + id + " successfully.",user.get());
+            ApiResponse<BankUser> apiResponse = new ApiResponse<>("Fetched user with ID " + id + " successfully.",user.get());
             return ResponseEntity.ok(apiResponse);
         }).orElseGet(() -> {
             logNotFound("User with ID " + id + " not found.");
@@ -206,7 +206,8 @@ public class BankUserController {
         String newBalance = String.valueOf(balanceUpdateRequest.getNewBalance());
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
-            service.addBalance(user.get(), Integer.parseInt(newBalance), accountId);
+            TransferArgument transferArgument = new TransferArgument(true);
+            service.addBalance(user.get(), Integer.parseInt(newBalance), accountId, transferArgument);
             LOGGER.log(Level.INFO, "Updated balance for user ID " + id + " and account ID " + accountId + " successfully.");
             ApiResponse<BankUser> apiResponse = new ApiResponse<>("Updated balance for user ID " + id + " and account ID " + accountId + " successfully.",user.get());
             return ResponseEntity.ok(apiResponse);
@@ -222,7 +223,8 @@ public class BankUserController {
         int balanceToAdd = addBalance.getBalanceToAdd();
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
-            boolean done = service.addBalance(user.get(), balanceToAdd, accountId);
+            TransferArgument transferArgument = new TransferArgument(true);
+            boolean done = service.addBalance(user.get(), balanceToAdd, accountId,transferArgument);
             if (done) {
                 LOGGER.log(Level.INFO, "Added balance to user ID " + id + " and account ID " + accountId + " successfully.");
                 ApiResponse<BankUser> apiResponse = new ApiResponse<>("Added balance to user ID " + id + " and account ID " + accountId + " successfully.",user.get());
@@ -243,7 +245,8 @@ public class BankUserController {
         int balanceToRemove = removeBalance.getBalanceToRemove();
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
-            boolean done = service.removeBalance(user.get(), balanceToRemove, accountId);
+            TransferArgument transferArgument = new TransferArgument(true);
+            boolean done = service.removeBalance(user.get(), balanceToRemove, accountId,transferArgument);
             if (done) {
                 RemoveResponse removeResponse = new RemoveResponse("Removed balance for user ID " + id + " and account ID " + accountId + " successfully.", user.get());
                 LOGGER.log(Level.INFO, "Removed balance for user ID " + id + " and account ID " + accountId + " successfully.");
