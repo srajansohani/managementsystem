@@ -1,6 +1,7 @@
 package com.Bank.managementSystem.controller;
 
 import com.Bank.managementSystem.DTO.*;
+import com.Bank.managementSystem.Exception.DuplicateAccountException;
 import com.Bank.managementSystem.Response.*;
 import com.Bank.managementSystem.entity.Address;
 import com.Bank.managementSystem.entity.BankUser;
@@ -139,13 +140,25 @@ public class BankUserController {
                 }
             }
 
-            BankUser user = service.createUser(name, accountType);
-            user.setMobileNumber(phoneNumber);
-            user.setEmail(email);
-            service.saveUser(user);
-            LOGGER.log(Level.INFO, "Created new user with name " + name + " and account type " + accountType + " successfully.");
-            ApiResponse<Integer> apiResponse  = new ApiResponse<>("Created new user with name " + name + " and account type " + accountType + " successfully.",user.get());
-            return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+//            BankUser user = service.createUser(name, accountType,phoneNumber);
+//            user.setMobileNumber(phoneNumber);
+//            user.setEmail(email);
+//            service.saveUser(user);
+//            LOGGER.log(Level.INFO, "Created new user with name " + name + " and account type " + accountType + " successfully.");
+//            ApiResponse<Integer> apiResponse  = new ApiResponse<>("Created new user with name " + name + " and account type " + accountType + " successfully.",user.get());
+//            return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+
+            try {
+                BankUser user = service.createUser(name, accountType, phoneNumber);
+                user.setMobileNumber(phoneNumber);
+                user.setEmail(email);
+                service.saveUser(user);
+                LOGGER.log(Level.INFO, "Created new user with name " + name + " and account type " + accountType + " successfully.");
+                ApiResponse<Integer> apiResponse  = new ApiResponse<>("Created new user with name " + name + " and account type " + accountType + " successfully.", user.getUserID());
+                return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+            } catch (DuplicateAccountException ex) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+            }
         } else {
             String accountType = createUserRequest.getAccountType();
             int userId = createUserRequest.getExistingUserId();
@@ -154,15 +167,30 @@ public class BankUserController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid account type. Please choose either 'savings' or 'current'.");
             }
 
-            Optional<BankUser> user = service.getUserById(userId);
-            if (user.isPresent()) {
-                user.get().addAccount(accountType);
-                service.saveUser(user.get());
-                LOGGER.log(Level.INFO, "Added new account type " + accountType + " for existing user ID " + userId + " successfully.");
-                return ResponseEntity.ok(user.get());
+//            Optional<BankUser> user = service.getUserById(userId);
+//            if (user.isPresent()) {
+//                user.get().addAccount(accountType);
+//                service.saveUser(user.get());
+//                LOGGER.log(Level.INFO, "Added new account type " + accountType + " for existing user ID " + userId + " successfully.");
+//                return ResponseEntity.ok(user.get());
+//            } else {
+//                logNotFound("User with ID " + userId + " not found.");
+//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//            }
+            Optional<BankUser> userOptional = service.getUserById(userId);
+            if (userOptional.isPresent()) {
+                BankUser user = userOptional.get();
+                try {
+                    user.addAccount(accountType);
+                    service.saveUser(user);
+                    LOGGER.log(Level.INFO, "Added new account type " + accountType + " for existing user ID " + userId + " successfully.");
+                    return ResponseEntity.ok(user);
+                } catch (DuplicateAccountException ex) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+                }
             } else {
-                logNotFound("User with ID " + userId + " not found.");
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                LOGGER.log(Level.WARNING, "User with ID " + userId + " not found.");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User with ID " + userId + " not found.");
             }
         }
     }

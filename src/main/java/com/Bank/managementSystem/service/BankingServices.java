@@ -123,8 +123,8 @@ public class BankingServices{
         return user;
     }
 
-    public BankUser createUser(String name, String accountType) {
-        return repository.create(name,accountType);
+    public BankUser createUser(String name, String accountType, Long phone) {
+        return repository.create(name,accountType,phone);
     }
 
     public void deleteUser(int id){

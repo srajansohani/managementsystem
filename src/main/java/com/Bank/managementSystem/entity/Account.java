@@ -1,4 +1,5 @@
 package com.Bank.managementSystem.entity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -9,9 +10,13 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long AccountId;
-
     private String AccountType;
     private String AccountBalance;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
+    private BankUser bankUser;
 
     @ElementCollection
     @CollectionTable(name = "transaction", joinColumns = @JoinColumn(name = "account_id"))
@@ -21,16 +26,36 @@ public class Account {
     public Account() {
     }
 
-    // To add a account with some initial balance.
-    public Account(String accountType, String accountBalance) {
-        this.AccountType = accountType;
-        this.AccountBalance = accountBalance;
+//    // To add a account with some initial balance.
+//    public Account(String accountType, String accountBalance) {
+//        this.AccountType = accountType;
+//        this.AccountBalance = accountBalance;
+//    }
+//
+//    public Account(String accountType, String accountBalance,BankUser b1) {
+//        this.AccountType = accountType;
+//        this.AccountBalance = accountBalance;
+//        this.bankUser = b1;
+//    }
+
+    public BankUser getBankUser() {
+        return bankUser;
+    }
+
+    public void setBankUser(BankUser bankUser) {
+        this.bankUser = bankUser;
     }
 
     // To add a account with 0 balance.
     public Account(String accountType) {
         this.AccountType = accountType;
         this.AccountBalance = "0";
+    }
+
+    public Account(String accountType,BankUser b1) {
+        this.AccountType = accountType;
+        this.AccountBalance = "0";
+        this.bankUser = b1;
     }
 
     public void setAccountBalance(int accountBalance) {

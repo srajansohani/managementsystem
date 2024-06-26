@@ -42,6 +42,6 @@ public class Transaction {
 
     @Override
     public String toString(){
-        return type + amount + " Time : " + date + " " + "UserTo/From: " + Id + "0 : Means self transfer";
+        return type + amount + " Time : " + date + " " + "UserTo/From: " + Id + " (NOTE: 0- Means self transfer)";
     }
 }
