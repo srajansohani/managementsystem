@@ -65,7 +65,9 @@ public class BankUser {
         this.address = address;
         return address;
     }
-//    private Account userAccount;
+
+    public static final String CURRENT_ACCOUNT = "current";
+    public static final String SAVINGS_ACCOUNT = "savings";
 
     public BankUser(){}
 
@@ -80,9 +82,35 @@ public class BankUser {
         this.accounts.add(account);
     }
 
-    public void addAccount(String accountType){
-        Account account = new Account(accountType);
-        this.accounts.add(account);
+//    public void addAccount(String accountType){
+//        Account account = new Account(accountType);
+//        this.accounts.add(account);
+//    }
+
+    public void addAccount(String accountType) {
+        if (accountType.equalsIgnoreCase(CURRENT_ACCOUNT) || accountType.equalsIgnoreCase(SAVINGS_ACCOUNT)) {
+            boolean hasCurrent = false;
+            boolean hasSavings = false;
+
+            for (Account account : accounts) {
+                if (account.getAccountType().equalsIgnoreCase(CURRENT_ACCOUNT)) {
+                    hasCurrent = true;
+                } else if (account.getAccountType().equalsIgnoreCase(SAVINGS_ACCOUNT)) {
+                    hasSavings = true;
+                }
+            }
+
+            if (accountType.equalsIgnoreCase(CURRENT_ACCOUNT) && hasCurrent) {
+                System.out.println("A current account already exists. You can only have one current account.");
+            } else if (accountType.equalsIgnoreCase(SAVINGS_ACCOUNT) && hasSavings) {
+                System.out.println("A savings account already exists. You can only have one savings account.");
+            } else {
+                Account account = new Account(accountType);
+                this.accounts.add(account);
+            }
+        } else {
+            System.out.println("Invalid account type. Only 'current' and 'savings' accounts are allowed.");
+        }
     }
 
     public int getUserID() {
@@ -122,10 +150,10 @@ public class BankUser {
         return null;
     }
 
-    public List<Transactions> getUserTransactions(Long accountId) {
+    public List<Transaction> getUserTransactions(Long accountId) {
         for (Account account : accounts) {
             if (account.getAccountId().equals(accountId)) {
-                return account.getTransactions();
+                return account.getTransaction();
             }
         }
         return null; // Or throw an exception if account not found

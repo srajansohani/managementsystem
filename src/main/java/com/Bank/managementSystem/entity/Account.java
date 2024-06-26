@@ -14,8 +14,8 @@ public class Account {
     private String AccountBalance;
 
     @ElementCollection
-    @CollectionTable(name = "transactions", joinColumns = @JoinColumn(name = "account_id"))
-    private List<Transactions> transactions;
+    @CollectionTable(name = "transaction", joinColumns = @JoinColumn(name = "account_id"))
+    private List<Transaction> transaction;
 
     //Constructors
     public Account() {
@@ -57,15 +57,15 @@ public class Account {
         this.AccountType = accountType;
     }
 
-    public List<Transactions> getTransactions() {
-        return this.transactions;
+    public List<Transaction> getTransaction() {
+        return this.transaction;
     }
 
-    public void setTransactions(List<Transactions> transactions) {
-        this.transactions = transactions;
+    public void setTransactions(List<Transaction> transactions) {
+        this.transaction = transactions;
     }
 
-    public boolean addTransaction(Transactions transaction){
-        return this.transactions.add(transaction);
+    public boolean addTransaction(Transaction transaction){
+        return this.transaction.add(transaction);
     }
 }

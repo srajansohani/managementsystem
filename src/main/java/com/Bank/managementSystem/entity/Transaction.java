@@ -3,25 +3,30 @@ import jakarta.persistence.Embeddable;
 import java.time.LocalDateTime;
 
 @Embeddable
-public class Transactions {
+public class Transaction {
     private String type;
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
     private int amount;
     private final LocalDateTime date;
     private long Id;
 //    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy HH:mm:ss");
 
-    public Transactions(){
+    public Transaction(){
         this.date = LocalDateTime.now();
     }
 
-    public Transactions(String type, int amount, LocalDateTime date, long accountId) {
+    public Transaction(String type, int amount, LocalDateTime date, long accountId) {
         this.type = type;
         this.amount = amount;
         this.date = date;
         this.Id = accountId;
     }
 
-    public Transactions(String type, int amount, LocalDateTime date){
+    public Transaction(String type, int amount, LocalDateTime date){
         this.type = type;
         this.amount = amount;
         this.date = date;
@@ -37,6 +42,6 @@ public class Transactions {
 
     @Override
     public String toString(){
-        return type + amount + " Time : " + date + " " + Id;
+        return type + amount + " Time : " + date + " " + "UserTo/From: " + Id + "0 : Means self transfer";
     }
 }

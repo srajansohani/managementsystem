@@ -4,6 +4,7 @@ public class TransferRequest {
     private Long accountIdTo;
     private int balanceToTransfer;
     private int userIdTO;
+    private Long accountIdFrom;
 
     public int getUserIdTO() {
         return userIdTO;
@@ -37,5 +38,5 @@ public class TransferRequest {
         this.accountIdFrom = accountIdFrom;
     }
 
-    private Long accountIdFrom;
+
 }

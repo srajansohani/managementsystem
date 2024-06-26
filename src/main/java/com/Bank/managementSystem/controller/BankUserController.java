@@ -87,6 +87,25 @@ public class BankUserController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @GetMapping("/user/{id}/accounts/{accountId}/{amountOfTransaction}/transactions")
+    public ResponseEntity<List<String>> getTransactionHistoryCustom(@PathVariable int id, @PathVariable Long accountId, @PathVariable int amountOfTransaction) {
+        Optional<BankUser> user = service.getUserById(id);
+        if (user.isPresent()) {
+            List<String> transactions = service.getTransactionHistoryCustom(user.get(), accountId,amountOfTransaction);
+            if (transactions != null) {
+                LOGGER.log(Level.INFO, "Fetched " + amountOfTransaction +" transaction history for user ID " + id + " and account ID " + accountId + " successfully.");
+                return ResponseEntity.ok(transactions);
+            } else {
+                logNotFound("Transactions not found for account ID " + accountId + ".");
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } else {
+            logNotFound("User with ID " + id + " not found.");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping("/admin/")
     public ResponseEntity<?> addUser(@RequestBody CreateUserRequest createUserRequest) {

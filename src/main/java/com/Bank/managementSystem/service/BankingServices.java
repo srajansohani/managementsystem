@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.Bank.managementSystem.entity.BankUser;
-import com.Bank.managementSystem.entity.Transactions;
+import com.Bank.managementSystem.entity.Transaction;
 import com.Bank.managementSystem.repository.bankUserManager;
 
 @Service
@@ -35,10 +35,10 @@ public class BankingServices{
         b1.setAccountBalance(accountId,balanceToAdd);
         boolean transactionSuccessful;
         if (transferArgument.isSelf()){
-            transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transactions("Credit - ", balanceToAdd, LocalDateTime.now()));
+            transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Credit - ", balanceToAdd, LocalDateTime.now()));
         }
         else {
-             transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transactions("Credit - ", balanceToAdd, LocalDateTime.now(),accountIdFrom));
+             transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Credit - ", balanceToAdd, LocalDateTime.now(),accountIdFrom));
         }
         if (transactionSuccessful) {
             System.out.println("Successfully added balance to the account.");
@@ -71,10 +71,10 @@ public class BankingServices{
             }
             boolean transactionSuccessful;
             if (transferArgument.isSelf()){
-                transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transactions("Debit - ", balanceToRemove, LocalDateTime.now()));
+                transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Debit - ", balanceToRemove, LocalDateTime.now()));
             }
             else {
-                transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transactions("Debit - ", balanceToRemove, LocalDateTime.now(),accountIdTo));
+                transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Debit - ", balanceToRemove, LocalDateTime.now(),accountIdTo));
             }
 //            b1.getAccount(accountId).addTransaction(new Transactions("Debit - ", balanceToRemove,LocalDateTime.now()));
             repository.update(b1); // Save the updated user to the repository
@@ -101,9 +101,17 @@ public class BankingServices{
     }
 
     public List<String> getTransactionHistory(BankUser b1, Long accountId) {
-        return b1.getAccount(accountId).getTransactions().stream()
-                           .map(Transactions::toString)
+        return b1.getAccount(accountId).getTransaction().stream()
+                           .map(Transaction::toString)
                            .collect(Collectors.toList());
+    }
+
+    public List<String> getTransactionHistoryCustom(BankUser user, Long accountId, int limit) {
+        return user.getAccount(accountId).getTransaction().stream()
+                .sorted((t1, t2) -> t2.getDate().compareTo(t1.getDate())) // Sort by date, descending
+                .limit(limit) // Limit to the specified number of transactions
+                .map(Transaction::toString)
+                .collect(Collectors.toList());
     }
 
     public Optional<BankUser> getUserById(int id) {
