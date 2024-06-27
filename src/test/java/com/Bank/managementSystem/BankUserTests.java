@@ -78,13 +78,13 @@ public class BankUserTests {
         request.setPhone(Long.parseLong("1234567890"));
 
         BankUser user = new BankUser();
-        when(bankingServices.createUser(anyString(), anyString())).thenReturn(user);
+        when(bankingServices.createUser(anyString(), anyString(), anyLong())).thenReturn(user);
         when(bankingServices.saveUser(any(BankUser.class))).thenReturn(user);
 
         ResponseEntity<?> response = bankUserController.addUser(request);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        verify(bankingServices, times(1)).createUser(anyString(), anyString());
+        verify(bankingServices, times(1)).createUser(anyString(), anyString(), anyLong());
         verify(bankingServices, times(1)).saveUser(any(BankUser.class));
     }
 
