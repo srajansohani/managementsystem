@@ -140,14 +140,6 @@ public class BankUserController {
                 }
             }
 
-//            BankUser user = service.createUser(name, accountType,phoneNumber);
-//            user.setMobileNumber(phoneNumber);
-//            user.setEmail(email);
-//            service.saveUser(user);
-//            LOGGER.log(Level.INFO, "Created new user with name " + name + " and account type " + accountType + " successfully.");
-//            ApiResponse<Integer> apiResponse  = new ApiResponse<>("Created new user with name " + name + " and account type " + accountType + " successfully.",user.get());
-//            return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
-
             try {
                 BankUser user = service.createUser(name, accountType, phoneNumber);
                 user.setMobileNumber(phoneNumber);
@@ -167,16 +159,6 @@ public class BankUserController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid account type. Please choose either 'savings' or 'current'.");
             }
 
-//            Optional<BankUser> user = service.getUserById(userId);
-//            if (user.isPresent()) {
-//                user.get().addAccount(accountType);
-//                service.saveUser(user.get());
-//                LOGGER.log(Level.INFO, "Added new account type " + accountType + " for existing user ID " + userId + " successfully.");
-//                return ResponseEntity.ok(user.get());
-//            } else {
-//                logNotFound("User with ID " + userId + " not found.");
-//                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//            }
             Optional<BankUser> userOptional = service.getUserById(userId);
             if (userOptional.isPresent()) {
                 BankUser user = userOptional.get();
@@ -288,7 +270,7 @@ public class BankUserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/user/{id}/accounts/{accountId}/balance/remove")
-    public ResponseEntity<RemoveResponse> removeBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody RemoveBalance removeBalance) {
+    public ResponseEntity<RemoveResponse> withdrawBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody RemoveBalance removeBalance) {
         int balanceToRemove = removeBalance.getBalanceToRemove();
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
