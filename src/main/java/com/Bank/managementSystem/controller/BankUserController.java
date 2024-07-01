@@ -28,7 +28,7 @@ public class BankUserController {
     private static final Logger LOGGER = Logger.getLogger(BankUserController.class.getName());
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/")
+    @GetMapping("/admin/") //JSON Response
     public ResponseEntity<List<BankUser>> getUsers() {
         List<BankUser> all = service.getAll();
         LOGGER.log(Level.INFO, "Fetched all users successfully.");
@@ -36,7 +36,7 @@ public class BankUserController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/{id}")
+    @GetMapping("/admin/{id}") //JSON Response
     public ResponseEntity<?> getUserById(@PathVariable int id) {
         Optional<BankUser> user = service.getUserById(id);
         return user.map(u -> {
@@ -50,7 +50,7 @@ public class BankUserController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin/{id}/accounts/{accountId}/balance")
+    @GetMapping("/admin/{id}/accounts/{accountId}/balance") //JSON Response
     public ResponseEntity<GetBalanceResponse> getUserBalance(@PathVariable int id, @PathVariable Long accountId) {
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
@@ -71,13 +71,13 @@ public class BankUserController {
 
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/user/{id}/accounts/{accountId}/transactions")
-    public ResponseEntity<List<String>> getTransactionHistory(@PathVariable int id, @PathVariable Long accountId) {
+    public ResponseEntity<?> getTransactionHistory(@PathVariable int id, @PathVariable Long accountId) {
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
             List<String> transactions = service.getTransactionHistory(user.get(), accountId);
             if (transactions != null) {
                 LOGGER.log(Level.INFO, "Fetched transaction history for user ID " + id + " and account ID " + accountId + " successfully.");
-                return ResponseEntity.ok(transactions);
+                return ResponseEntity.ok(user.get().getAccount(accountId).getTransaction());
             } else {
                 logNotFound("Transactions not found for account ID " + accountId + ".");
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -108,7 +108,7 @@ public class BankUserController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @PostMapping("/admin/")
+    @PostMapping("/admin/") //JSON Response
     public ResponseEntity<?> addUser(@RequestBody CreateUserRequest createUserRequest) {
         boolean existingUser = createUserRequest.isExistingUser();
 
@@ -178,7 +178,7 @@ public class BankUserController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    @PostMapping("/user/{userId}/accounts/{accountId}/updateAddress")
+    @PostMapping("/user/{userId}/accounts/{accountId}/updateAddress") //JSON Response
     public ResponseEntity<ApiResponse<BankUser>> updateAddress(@PathVariable int userId, @PathVariable Long accountId, @RequestBody UpdateAddress updateAddress) {
         Address address = updateAddress.getAddress();
         System.out.println(address);
@@ -196,7 +196,7 @@ public class BankUserController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    @PostMapping("/user/{userId}/accounts/{accountId}/updatePhone")
+    @PostMapping("/user/{userId}/accounts/{accountId}/updatePhone") //JSON Response
     public ResponseEntity<ApiResponse<BankUser>> updatePhone(@PathVariable int userId, @PathVariable Long accountId, @RequestBody UpdatePhone updatePhone) {
         Long phone = updatePhone.getPhone();
         Optional<BankUser> user = service.getUserById(userId);
@@ -213,7 +213,7 @@ public class BankUserController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    @PostMapping("/user/{userId}/accounts/{accountId}/updateEmail")
+    @PostMapping("/user/{userId}/accounts/{accountId}/updateEmail") //JSON Response
     public ResponseEntity<ApiResponse<BankUser>> updateEmail(@PathVariable int userId, @PathVariable Long accountId, @RequestBody UpdateEmail updateEmail) {
         String email = updateEmail.getEmail();
         Optional<BankUser> user = service.getUserById(userId);
@@ -230,7 +230,7 @@ public class BankUserController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/admin/{id}/accounts/{accountId}/balance")
+    @PutMapping("/admin/{id}/accounts/{accountId}/balance") //JSON Response
     public ResponseEntity<ApiResponse<BankUser>> updateUserBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody BalanceUpdateRequest balanceUpdateRequest) {
         String newBalance = String.valueOf(balanceUpdateRequest.getNewBalance());
         Optional<BankUser> user = service.getUserById(id);
@@ -247,7 +247,7 @@ public class BankUserController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    @PutMapping("/user/{id}/accounts/{accountId}/balance/add")
+    @PutMapping("/user/{id}/accounts/{accountId}/balance/add") //JSON Response
     public ResponseEntity<ApiResponse<BankUser>> addBalance(@PathVariable int id, @PathVariable Long accountId, @RequestBody AddBalance addBalance) {
         int balanceToAdd = addBalance.getBalanceToAdd();
         Optional<BankUser> user = service.getUserById(id);
@@ -275,7 +275,8 @@ public class BankUserController {
         Optional<BankUser> user = service.getUserById(id);
         if (user.isPresent()) {
             TransferArgument transferArgument = new TransferArgument(true);
-            boolean done = service.removeBalance(user.get(), balanceToRemove, accountId,transferArgument);
+            boolean done = service.removeBalance
+                    (user.get(), balanceToRemove, accountId,transferArgument);
             if (done) {
                 RemoveResponse removeResponse = new RemoveResponse("Removed balance for user ID " + id + " and account ID " + accountId + " successfully.", user.get());
                 LOGGER.log(Level.INFO, "Removed balance for user ID " + id + " and account ID " + accountId + " successfully.");

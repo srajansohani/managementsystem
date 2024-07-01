@@ -28,17 +28,18 @@ public class BankingServices{
         }
         int prevBalance = Integer.parseInt(b1.getAccountBalance(accountId));
         int newBalance = prevBalance + balanceToAdd;
-        long accountIdFrom = 0;
+        Long accountIdFrom = null;
         if (!transferArgument.isSelf()){
-            accountIdFrom = transferArgument.getAccountId();
+            accountIdFrom = accountId;
         }
         b1.setAccountBalance(accountId,balanceToAdd);
         boolean transactionSuccessful;
         if (transferArgument.isSelf()){
-            transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Credit - ", balanceToAdd, LocalDateTime.now()));
+//            transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Credit - ", balanceToAdd, LocalDateTime.now(), accountId));
+            transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Credit - ", balanceToAdd, LocalDateTime.now(), accountId));
         }
         else {
-             transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Credit - ", balanceToAdd, LocalDateTime.now(),accountIdFrom));
+             transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Credit - ", balanceToAdd, LocalDateTime.now(),transferArgument.getAccountId(),accountId));
         }
         if (transactionSuccessful) {
             System.out.println("Successfully added balance to the account.");
@@ -71,10 +72,10 @@ public class BankingServices{
             }
             boolean transactionSuccessful;
             if (transferArgument.isSelf()){
-                transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Debit - ", balanceToRemove, LocalDateTime.now()));
+                transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Debit - ", balanceToRemove, LocalDateTime.now(), accountId));
             }
             else {
-                transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Debit - ", balanceToRemove, LocalDateTime.now(),accountIdTo));
+                transactionSuccessful = b1.getAccount(accountId).addTransaction(new Transaction("Debit - ", balanceToRemove, LocalDateTime.now(), accountId, accountIdTo));
             }
 //            b1.getAccount(accountId).addTransaction(new Transactions("Debit - ", balanceToRemove,LocalDateTime.now()));
             repository.update(b1); // Save the updated user to the repository
