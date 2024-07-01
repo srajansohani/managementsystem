@@ -3,6 +3,7 @@ package com.Bank.managementSystem.controller;
 import com.Bank.managementSystem.DTO.*;
 import com.Bank.managementSystem.Exception.DuplicateAccountException;
 import com.Bank.managementSystem.Response.*;
+import com.Bank.managementSystem.entity.Account;
 import com.Bank.managementSystem.entity.Address;
 import com.Bank.managementSystem.entity.BankUser;
 import com.Bank.managementSystem.service.BankingServices;
@@ -146,8 +147,10 @@ public class BankUserController {
                 user.setEmail(email);
                 service.saveUser(user);
                 LOGGER.log(Level.INFO, "Created new user with name " + name + " and account type " + accountType + " successfully.");
-                ApiResponse<Integer> apiResponse  = new ApiResponse<>("Created new user with name " + name + " and account type " + accountType + " successfully.", user.getUserID());
-                return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+                Account account = user.getAccounts().get(user.getAccounts().size()-1);
+                CreationResponse creationResponse = new CreationResponse("Created new user with name " + name + " and account type " + accountType + " successfully.", account.getAccountId(), (long) user.getUserID());
+//                ApiResponse<Integer> apiResponse  = new ApiResponse<>("Created new user with name " + name + " and account type " + accountType + " successfully.", user.getUserID());
+                return ResponseEntity.status(HttpStatus.CREATED).body(creationResponse);
             } catch (DuplicateAccountException ex) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
             }

@@ -13,7 +13,6 @@ public class BankUser {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int userID;
-
     private String name;
     private Long mobileNumber;
     private String email;
