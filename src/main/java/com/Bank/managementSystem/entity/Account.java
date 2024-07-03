@@ -26,18 +26,6 @@ public class Account {
     public Account() {
     }
 
-//    // To add a account with some initial balance.
-//    public Account(String accountType, String accountBalance) {
-//        this.AccountType = accountType;
-//        this.AccountBalance = accountBalance;
-//    }
-//
-//    public Account(String accountType, String accountBalance,BankUser b1) {
-//        this.AccountType = accountType;
-//        this.AccountBalance = accountBalance;
-//        this.bankUser = b1;
-//    }
-
     public BankUser getBankUser() {
         return bankUser;
     }

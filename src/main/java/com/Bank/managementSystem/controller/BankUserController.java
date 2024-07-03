@@ -149,7 +149,6 @@ public class BankUserController {
                 LOGGER.log(Level.INFO, "Created new user with name " + name + " and account type " + accountType + " successfully.");
                 Account account = user.getAccounts().get(user.getAccounts().size()-1);
                 CreationResponse creationResponse = new CreationResponse("Created new user with name " + name + " and account type " + accountType + " successfully.", account.getAccountId(), (long) user.getUserID());
-//                ApiResponse<Integer> apiResponse  = new ApiResponse<>("Created new user with name " + name + " and account type " + accountType + " successfully.", user.getUserID());
                 return ResponseEntity.status(HttpStatus.CREATED).body(creationResponse);
             } catch (DuplicateAccountException ex) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
