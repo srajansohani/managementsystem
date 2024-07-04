@@ -39,7 +39,7 @@ public class CombinedUserDetailsService implements UserDetailsService {
                     adminConfig.getAdminUsername(),
                     adminConfig.getAdminPassword(),
                     true, true, true, true,
-                    List.of(new SimpleGrantedAuthority("ADMIN"))
+                    List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))
             );
         }
 
@@ -50,6 +50,6 @@ public class CombinedUserDetailsService implements UserDetailsService {
         }
         return new User(
                     user.getUsername(), user.getPassword(), true, true, true,
-                    true, List.of(new SimpleGrantedAuthority("USER")));
+                    true, List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }
 }

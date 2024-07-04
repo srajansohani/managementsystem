@@ -43,7 +43,7 @@ public class AuthController {
         if (adminConfig.getAdminUsername().equals(userRegistrationRequest.getUsername())) {
             return ResponseEntity.badRequest().body("Cannot register as admin");
         } else {
-            newUser.setRole("USER");
+            newUser.setRole("ROLE_USER");
         }
 
         userService.saveUser(newUser);
