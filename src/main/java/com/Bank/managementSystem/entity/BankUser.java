@@ -71,6 +71,15 @@ public class BankUser {
         return name;
     }
 
+    public BankUser(int userID, String name, Long mobileNumber, String email, Address address, List<Account> accounts) {
+        this.userID = userID;
+        this.name = name;
+        this.mobileNumber = mobileNumber;
+        this.email = email;
+        this.address = address;
+        this.accounts = accounts;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

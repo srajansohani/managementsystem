@@ -1,13 +1,13 @@
 package com.Bank.managementSystem.DTO;
 
 public class RemoveBalance {
-    private int balanceToRemove;
+    private int balanceToWithdraw;
 
     public int getBalanceToRemove() {
-        return balanceToRemove;
+        return balanceToWithdraw;
     }
 
     public void setBalanceToRemove(int balanceToRemove) {
-        this.balanceToRemove = balanceToRemove;
+        this.balanceToWithdraw = balanceToRemove;
     }
 }
