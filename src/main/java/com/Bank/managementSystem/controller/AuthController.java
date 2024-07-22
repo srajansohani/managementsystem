@@ -27,6 +27,7 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+
     public AuthController(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, UserDetailsService userDetailsService, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;
@@ -45,11 +46,11 @@ public class AuthController {
         } else {
             newUser.setRole("ROLE_USER");
         }
-
         userService.saveUser(newUser);
         return ResponseEntity.ok("User registered successfully");
     }
 
+   //Uncomment to come back to JWT based Authentication
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authRequest) throws Exception {
         System.out.println("Username: " + authRequest.getUsername());
